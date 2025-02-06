@@ -23,14 +23,7 @@ client = pymongo.MongoClient("mongodb://localhost:27017/")
 db = client["product_database"]
 collection = db["products"]
 """
-
-def kep_keszitese():
-    image_path = '/home/pi/Desktop/image.jpg'
-    camera.capture(image_path)
-    sleep(1)
-    print(pytesseract.image_to_string(Image.open(image_path)))
-    return 
-
+#Ezek itt faszsagok
 """
 def detect_text(image_path):
     client = vision.ImageAnnotatorClient()
@@ -63,14 +56,24 @@ def save_to_mongodb(product_name, expiration_date):
     collection.insert_one(data)
     print("Adat elmentve MongoDB-be.")
 """
+
+def kep_keszites():
+    image_path = '/home/pi/Desktop/image.jpg'
+    camera.capture(image_path)
+    sleep(1)
+    return image_path
     
+def szoveg_felismeres(image_path):
+    felismert_szoveg = pytesseract.image_to_string(Image.open(image_path))
+    return felismert_szoveg
+
 def main():
-    kep_keszitese()
+    image_path = kep_keszites()
+    felismert_szoveg = szoveg_felismeres(image_path)
     #text = detect_text(image_path)
     #expiration_date = extract_expiration_date(text)
     #save_to_mongodb(text, expiration_date)
-    print(f"Felismert termék: {text}")
-    print(f"Lejárati dátum: {expiration_date}")
+    print(f"Felismert termék: {felismert_szoveg}")
 
 if __name__ == "__main__":
     main()
