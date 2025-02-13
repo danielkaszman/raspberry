@@ -1,0 +1,5 @@
+opencv-python
+pymongo 
+pytesseract
+pillow
+gradio
