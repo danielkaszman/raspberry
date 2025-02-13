@@ -2,20 +2,21 @@ import io
 import os
 import cv2
 import re
-import pymongo
-import pytesseract
+#import pymongo
+#import pytesseract
+import libcamera
 from PIL import Image
-from picamera import PiCamera
+from picamera2 import Picamera2
 from time import sleep
-from google.cloud import vision
+#from google.cloud import vision
 from datetime import datetime
 
 #Pi camera elindítása (lehet hogy a mainbe kell tenni)
-camera = PiCamera()
-camera.start_preview()
+#camera = Picamera2()
+#camera.start_preview()
 
 # Google hitelesítési kulcs (JSON fájl)
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "raspberry/fridge-key.json"
+#os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "raspberry/fridge-key.json"
 
 # MongoDB kapcsolat
 """
@@ -58,16 +59,25 @@ def save_to_mongodb(product_name, expiration_date):
 """
 
 def kep_keszites():
-    image_path = '/home/pi/Desktop/image.jpg'
-    camera.capture(image_path)
-    sleep(1)
+    print("Kamerakeszites elindult!")
+    camera = Picamera2()
+    camera.configure(camera.create_still_configuration())
+    camera.start()
+
+    image = camera.capture_array() 
+    image_path = "/home/danikaszman/Desktop/Images/image.jpg"
+    cv2.imwrite(image_path, image)
+        
+    camera.stop()
     return image_path
     
 def szoveg_felismeres(image_path):
-    felismert_szoveg = pytesseract.image_to_string(Image.open(image_path))
+    #felismert_szoveg = pytesseract.image_to_string(Image.open(image_path))
+    print("Szovegfelismeres elindult!")
     return felismert_szoveg
 
 def main():
+    print("Main elindult!")
     image_path = kep_keszites()
     felismert_szoveg = szoveg_felismeres(image_path)
     #text = detect_text(image_path)
