@@ -3,7 +3,7 @@ import os
 import cv2
 import re
 #import pymongo
-#import pytesseract
+import pytesseract
 import libcamera
 from PIL import Image
 from picamera2 import Picamera2
@@ -59,7 +59,7 @@ def save_to_mongodb(product_name, expiration_date):
 """
 
 def kep_keszites():
-    print("Kamerakeszites elindult!")
+    print("Kepkeszites elindult!")
     camera = Picamera2()
     camera.configure(camera.create_still_configuration())
     camera.start()
@@ -72,8 +72,8 @@ def kep_keszites():
     return image_path
     
 def szoveg_felismeres(image_path):
-    #felismert_szoveg = pytesseract.image_to_string(Image.open(image_path))
     print("Szovegfelismeres elindult!")
+    felismert_szoveg = pytesseract.image_to_string(Image.open(image_path))
     return felismert_szoveg
 
 def main():
