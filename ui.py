@@ -1,7 +1,7 @@
 import PySimpleGUI as sg
 import io
 import time
-from picamera import PiCamera
+from picamera2 import Picamera2
 from PIL import Image
 
 # Function to capture an image from the Raspberry Pi camera
@@ -19,13 +19,13 @@ def convert_image_to_bytes(image):
         return output.getvalue()
 
 # Initialize the camera
-camera = PiCamera()
+camera = Picamera2()
 
 # Define the layout of the GUI
 layout = [
     [sg.Image(key='-IMAGE-')],
-    [sg.Text('Input 1'), sg.InputText(key='-INPUT1-')],
-    [sg.Text('Input 2'), sg.InputText(key='-INPUT2-')],
+    [sg.Text('Termek neve'), sg.InputText(key='-INPUT1-')],
+    [sg.Text('Lejarati datum'), sg.InputText(key='-INPUT2-')],
     [sg.Button('Modify Input 1'), sg.Button('Modify Input 2')]
 ]
 
@@ -33,9 +33,9 @@ layout = [
 window = sg.Window('Raspberry Pi Camera GUI', layout)
 
 # Capture the initial image
-image = capture_image(camera)
-image_bytes = convert_image_to_bytes(image)
-window['-IMAGE-'].update(data=image_bytes)
+#image = capture_image(camera)
+#image_bytes = convert_image_to_bytes(image)
+#window['-IMAGE-'].update(data=image_bytes)
 
 # Event loop
 while True:
@@ -55,10 +55,10 @@ while True:
         window['-INPUT2-'].update(values['-INPUT2-'])
     
     # Capture a new image every second
-    if time.time() % 1 < 0.1:  # Capture every second
-        image = capture_image(camera)
-        image_bytes = convert_image_to_bytes(image)
-        window['-IMAGE-'].update(data=image_bytes)
+    #if time.time() % 1 < 0.1:  # Capture every second
+     #   image = capture_image(camera)
+      #  image_bytes = convert_image_to_bytes(image)
+       # window['-IMAGE-'].update(data=image_bytes)
 
 # Cleanup
 camera.close()
