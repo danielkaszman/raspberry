@@ -74,19 +74,25 @@ def kep_keszites():
 def kepfeldolgozas(image_path):
     image = cv2.imread(image_path)    
     gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    cv2.imwrite(image_path, gray_image)
-    return image_path
+
+    denoised = cv2.fastNlMeansDenoising(
+            gray_image, 
+            h = 260,      # Adjust based on noise level (higher = stronger denoising)
+            templateWindowSize=7, 
+            searchWindowSize=21
+        )
+    return denoised
     
-def szoveg_felismeres(gray_image_path):
+def szoveg_felismeres(denoised):
     print("Szovegfelismeres elindult!")
-    felismert_szoveg = pytesseract.image_to_string(Image.open(gray_image_path))
+    felismert_szoveg = pytesseract.image_to_string(Image.open(denoised))
     return felismert_szoveg
 
 def main():
     print("Main elindult!")
     image_path = kep_keszites()
-    gray_image_path = kepfeldolgozas(image_path)
-    felismert_szoveg = szoveg_felismeres(gray_image_path)
+    denoised = kepfeldolgozas(image_path)
+    felismert_szoveg = szoveg_felismeres(denoised)
     #text = detect_text(image_path)
     #expiration_date = extract_expiration_date(text)
     #save_to_mongodb(text, expiration_date)
