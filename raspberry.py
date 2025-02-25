@@ -70,16 +70,23 @@ def kep_keszites():
         
     camera.stop()
     return image_path
+
+def kepfeldolgozas(image_path):
+    image = cv2.imread(image_path)    
+    gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    cv2.imwrite(image_path, gray_image)
+    return image_path
     
-def szoveg_felismeres(image_path):
+def szoveg_felismeres(gray_image_path):
     print("Szovegfelismeres elindult!")
-    felismert_szoveg = pytesseract.image_to_string(Image.open(image_path))
+    felismert_szoveg = pytesseract.image_to_string(Image.open(gray_image_path))
     return felismert_szoveg
 
 def main():
     print("Main elindult!")
     image_path = kep_keszites()
-    felismert_szoveg = szoveg_felismeres(image_path)
+    gray_image_path = kepfeldolgozas(image_path)
+    felismert_szoveg = szoveg_felismeres(gray_image_path)
     #text = detect_text(image_path)
     #expiration_date = extract_expiration_date(text)
     #save_to_mongodb(text, expiration_date)
