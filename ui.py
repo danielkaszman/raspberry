@@ -1,7 +1,7 @@
 import PySimpleGUI as sg
 import io
 import time
-#from picamera2 import Picamera2
+from picamera2 import Picamera2
 from PIL import Image
 
 image_frame = sg.Frame(
@@ -10,6 +10,12 @@ image_frame = sg.Frame(
     size=(500, 500),
     relief=sg.RELIEF_SUNKEN,  # Süllyesztett keret hatás
 )
+
+# Inicializáljuk a Picamera2-t
+picam2 = Picamera2()
+preview_config = picam2.create_preview_configuration()
+picam2.configure(preview_config)
+picam2.start()
 
 # Define the layout of the GUI
 layout = [
@@ -30,6 +36,15 @@ while True:
     
     if event == sg.WINDOW_CLOSED:
         break
+
+    # Kép rögzítése
+    array = picam2.capture_array()
+    #array = np.rot90(array)  # Forgatás, ha szükséges
+    #array = np.flipud(array)  # Tükrözés, ha szükséges
+
+    # Kép konvertálása PySimpleGUI számára
+    img_bytes = array.tobytes()
+    window['-IMAGE-'].update(data=img_bytes, size=(500, 500))
     
     if event == 'Fényképezés':
         values['-INPUT1-'] += " modified"

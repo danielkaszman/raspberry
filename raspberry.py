@@ -2,7 +2,7 @@ import io
 import os
 import cv2
 import re
-#import pymongo
+import pymongo
 import pytesseract
 import libcamera
 from PIL import Image
@@ -18,12 +18,7 @@ from datetime import datetime
 # Google hitelesítési kulcs (JSON fájl)
 #os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "raspberry/fridge-key.json"
 
-# MongoDB kapcsolat
-"""
-client = pymongo.MongoClient("mongodb://localhost:27017/")
-db = client["product_database"]
-collection = db["products"]
-"""
+
 #Ezek itt faszsagok
 """
 def detect_text(image_path):
@@ -58,6 +53,11 @@ def save_to_mongodb(product_name, expiration_date):
     print("Adat elmentve MongoDB-be.")
 """
 
+# MongoDB kapcsolat
+client = pymongo.MongoClient("mongodb+srv://danikaszman:danikaszman@cluster.soqfcau.mongodb.net/Products?retryWrites=true&w=majority&appName=Cluster")
+db = client["Products"]
+collection = db["products"]
+
 def kep_keszites():
     print("Kepkeszites elindult!")
     camera = Picamera2()
@@ -87,6 +87,12 @@ def szoveg_felismeres(denoised):
     print("Szovegfelismeres elindult!")
     felismert_szoveg = pytesseract.image_to_string(Image.open(denoised))
     return felismert_szoveg
+
+def adatbazisba_mentes():
+    uj_termek = {
+        "nev": "Tej",
+        "lejarat": "2025-03-10",
+    }
 
 def main():
     print("Main elindult!")
