@@ -68,6 +68,7 @@ def kep_keszites():
     return image_path
 
 def kepfeldolgozas(image_path):
+    print("Kepfeldolgozas elindult!")
     image = cv2.imread(image_path)    
     gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
@@ -77,26 +78,32 @@ def kepfeldolgozas(image_path):
             templateWindowSize=7, 
             searchWindowSize=21
         )
-    return denoised
+
+    cv2.imwrite(image_path, denoised)
+    return 
     
-def szoveg_felismeres(denoised):
+def szoveg_felismeres(image_path):
     print("Szovegfelismeres elindult!")
-    felismert_szoveg = pytesseract.image_to_string(Image.open(denoised))
+    felismert_szoveg = pytesseract.image_to_string(Image.open(image_path))
     return felismert_szoveg
 
-def adatbazisba_mentes():
+def adatbazisba_mentes(nev):
+    print("Adatbazis feltoltes elindult!")
     uj_termek = {
-        "nev": "Tej",
-        "lejarat": "2025-03-10",
+        "NameOfProduct": nev,
+        "ExpiryDate": "2025-03-10",
     }
 
-    inserted_id = collection.insert_one(uj_termek).inserted_id
+    products = collection.insert_one(uj_termek).inserted_id
 
 def main():
     print("Main elindult!")
     image_path = kep_keszites()
-    denoised = kepfeldolgozas(image_path)
-    felismert_szoveg = szoveg_felismeres(denoised)
+    kepfeldolgozas(image_path)
+    felismert_szoveg = szoveg_felismeres(image_path)
+    if felismert_szoveg != "":
+        adatbazisba_mentes(felismert_szoveg)
+
     #text = detect_text(image_path)
     #expiration_date = extract_expiration_date(text)
     #save_to_mongodb(text, expiration_date)
