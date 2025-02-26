@@ -7,8 +7,8 @@ from PIL import Image
 
 image_frame = sg.Frame(
     "Előnézet",
-    [[sg.Image(filename="", size=(200, 200), key="-IMAGE-")]],
-    size=(500, 500),
+    [[sg.Image(filename="", size=(300, 300), key="-IMAGE-")]],
+    size=(300, 300),
     relief=sg.RELIEF_SUNKEN,  # Süllyesztett keret hatás
 )
 
@@ -45,7 +45,7 @@ while True:
 
     # Kép konvertálása PySimpleGUI számára
     img_bytes = array.tobytes()
-    window['-IMAGE-'].update(data=img_bytes, size=(500, 500))
+    window['-IMAGE-'].update(data=img_bytes, size=(300, 300))
     
     if event == 'Fényképezés':
         values['-INPUT1-'] += " modified"
