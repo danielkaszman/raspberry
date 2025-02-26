@@ -11,10 +11,6 @@ from time import sleep
 #from google.cloud import vision
 from datetime import datetime
 
-#Pi camera elindítása (lehet hogy a mainbe kell tenni)
-#camera = Picamera2()
-#camera.start_preview()
-
 # Google hitelesítési kulcs (JSON fájl)
 #os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "raspberry/fridge-key.json"
 
@@ -93,6 +89,8 @@ def adatbazisba_mentes():
         "nev": "Tej",
         "lejarat": "2025-03-10",
     }
+
+    inserted_id = collection.insert_one(uj_termek).inserted_id
 
 def main():
     print("Main elindult!")

@@ -1,6 +1,7 @@
 import PySimpleGUI as sg
 import io
 import time
+import libcamera
 from picamera2 import Picamera2
 from PIL import Image
 
