@@ -30,13 +30,29 @@ To configure the PiCamera and Tesseract for optimal text recognition with 8MP im
      ```
 
 4. **Preprocess the Image**:
-   - Convert the image to grayscale and apply thresholding to enhance text visibility:
+   - Convert the image to grayscale and apply denoising algorithm of FastNlMeansDenoising to enhance text visibility:
      ```python
      import cv2
      import numpy as np
 
-     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-     _, thresh = cv2.threshold(gray, 128, 255, cv2.THRESH_BINARY)
+             image_cv = cv2.cvtColor(np.array(image), cv2.COLOR_RGB2BGR)
+        gray = cv2.cvtColor(image_cv, cv2.COLOR_BGR2GRAY)  # Direct grayscale conversion
+
+        # Apply Non-Local Means Denoising (preserves edges better than Gaussian)
+        denoised = cv2.fastNlMeansDenoising(
+            gray, 
+            h=denoise_strength,      # Adjust based on noise level (higher = stronger denoising)
+            templateWindowSize=7, 
+            searchWindowSize=21
+        )
+
+        # Ensure black text on white background (critical for Tesseract)
+        if np.mean(denoised) < 127:
+            denoised = cv2.bitwise_not(denoised)
+
+        # Save denoised image for inspection
+        if debug:
+            cv2.imwrite("debug_denoised.png", denoised)
      ```
 
 5. **Perform OCR with Tesseract**:
