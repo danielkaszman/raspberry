@@ -125,6 +125,8 @@ while True:
     if event == 'Mentés':
         if felismert_nev and felismert_datum:
             adatbazisba_mentes(felismert_nev, felismert_datum)
+        else:
+            window["-TEXT-"].update("Név vagy dátum hiányzik!", text_color="red")
 
         values['-INPUT1-'] += ""
         window['-INPUT1-'].update(values['-INPUT1-'])    
