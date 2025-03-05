@@ -79,9 +79,8 @@ def main():
     felismert_datum = datum_felismeres(image_path)
 
     if felismert_datum:
-        adatbazisba_mentes(felismert_datum)
-
-    print(f"Felismert termék: {felismert_datum}")
+        #adatbazisba_mentes(felismert_datum)
+        print(f"Felismert datum: {felismert_datum}")
 
 if __name__ == "__main__":
     main()
