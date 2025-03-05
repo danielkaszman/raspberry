@@ -8,45 +8,14 @@ import libcamera
 from PIL import Image
 from picamera2 import Picamera2
 from time import sleep
-#from google.cloud import vision
 from datetime import datetime
 
-# Google hitelesítési kulcs (JSON fájl)
-#os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "raspberry/fridge-key.json"
-
-
 #Ezek itt faszsagok
-"""
-def detect_text(image_path):
-    client = vision.ImageAnnotatorClient()
-    with io.open(image_path, 'rb') as image_file:
-        content = image_file.read()
-    image = vision.Image(content=content)
-
-    response = client.text_detection(image=image)
-    texts = response.text_annotations
-
-    if texts:
-        return texts[0].description
-    return ""
-"""
-
 """
 def extract_expiration_date(text):
     pattern = r"\b(\d{2}/\d{2}/\d{4}|\d{2}-\d{2}-\d{4}|\d{2}\.\d{2}\.\d{4})\b"
     match = re.search(pattern, text)
     return match.group(0) if match else "Nincs dátum"
-"""
-
-"""
-def save_to_mongodb(product_name, expiration_date):
-    data = {
-        "product_name": product_name,
-        "expiration_date": expiration_date,
-        "timestamp": datetime.now()
-    }
-    collection.insert_one(data)
-    print("Adat elmentve MongoDB-be.")
 """
 
 # MongoDB kapcsolat
@@ -87,11 +56,18 @@ def szoveg_felismeres(image_path):
     felismert_szoveg = pytesseract.image_to_string(Image.open(image_path))
     return felismert_szoveg
 
-def adatbazisba_mentes(nev):
+def datum_felismeres(image_path):
+    print("Datumfelismeres elindult!")
+    felismert_szoveg = pytesseract.image_to_string(Image.open(image_path))
+    pattern = r"\b(\d{2}/\d{2}/\d{4}|\d{2}-\d{2}-\d{4}|\d{2}\.\d{2}\.\d{4})\b"
+    felismert_datum = re.search(pattern, felismert_szoveg)
+    return felismert_datum
+
+def adatbazisba_mentes(datum):
     print("Adatbazis feltoltes elindult!")
     uj_termek = {
-        "NameOfProduct": nev,
-        "ExpiryDate": "2025-03-10",
+        "NameOfProduct": "Teszt",
+        "ExpiryDate": datum,
     }
 
     products = collection.insert_one(uj_termek).inserted_id
@@ -100,14 +76,12 @@ def main():
     print("Main elindult!")
     image_path = kep_keszites()
     kepfeldolgozas(image_path)
-    felismert_szoveg = szoveg_felismeres(image_path)
-    if felismert_szoveg != "":
-        adatbazisba_mentes(felismert_szoveg)
+    felismert_datum = datum_felismeres(image_path)
 
-    #text = detect_text(image_path)
-    #expiration_date = extract_expiration_date(text)
-    #save_to_mongodb(text, expiration_date)
-    print(f"Felismert termék: {felismert_szoveg}")
+    if felismert_datum:
+        adatbazisba_mentes(felismert_datum)
+
+    print(f"Felismert termék: {felismert_datum}")
 
 if __name__ == "__main__":
     main()
