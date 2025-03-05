@@ -10,14 +10,6 @@ from picamera2 import Picamera2
 from time import sleep
 from datetime import datetime
 
-#Ezek itt faszsagok
-"""
-def extract_expiration_date(text):
-    pattern = r"\b(\d{2}/\d{2}/\d{4}|\d{2}-\d{2}-\d{4}|\d{2}\.\d{2}\.\d{4})\b"
-    match = re.search(pattern, text)
-    return match.group(0) if match else "Nincs dátum"
-"""
-
 # MongoDB kapcsolat
 client = pymongo.MongoClient("mongodb+srv://danikaszman:danikaszman@cluster.soqfcau.mongodb.net/Products?retryWrites=true&w=majority&appName=Cluster")
 db = client["Products"]
@@ -43,7 +35,7 @@ def kepfeldolgozas(image_path):
 
     denoised = cv2.fastNlMeansDenoising(
             gray_image, 
-            h = 260,      # Adjust based on noise level (higher = stronger denoising)
+            h = 260,      
             templateWindowSize=7, 
             searchWindowSize=21
         )
@@ -61,12 +53,15 @@ def datum_felismeres(image_path):
     felismert_szoveg = pytesseract.image_to_string(Image.open(image_path))
     pattern = r"\b(\d{2}/\d{2}/\d{4}|\d{2}-\d{2}-\d{4}|\d{2}\.\d{2}\.\d{4})\b"
     felismert_datum = re.search(pattern, felismert_szoveg)
-    return felismert_datum
+    if felismert_datum:
+        return felismert_datum.group()  
+    else:
+        return None  
 
 def adatbazisba_mentes(datum):
     print("Adatbazis feltoltes elindult!")
     uj_termek = {
-        "NameOfProduct": "Teszt",
+        "NameOfProduct": "Teszt termék",
         "ExpiryDate": datum,
     }
 
@@ -76,11 +71,15 @@ def main():
     print("Main elindult!")
     image_path = kep_keszites()
     kepfeldolgozas(image_path)
+    felismert_szoveg = szoveg_felismeres(image_path)
     felismert_datum = datum_felismeres(image_path)
 
+    print(f"Felismert szoveg: {felismert_szoveg}")
+    print(f"Felismert datum: {felismert_datum}")
+
     if felismert_datum:
-        #adatbazisba_mentes(felismert_datum)
-        print(f"Felismert datum: {felismert_datum}")
+        adatbazisba_mentes(felismert_datum)
+        
 
 if __name__ == "__main__":
     main()
