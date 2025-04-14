@@ -18,9 +18,9 @@ collection = db["products"]
 
 image_frame = sg.Frame(
     "Előnézet",
-    [[sg.Image(filename="", size=(200, 200), key="-IMAGE-")]],
-    size=(500, 500),
-    relief=sg.RELIEF_SUNKEN,  # Süllyesztett keret hatás
+    [[sg.Image(filename="", size=(300, 300), key="-IMAGE-")]],
+    size=(300, 300),
+    relief=sg.RELIEF_SUNKEN, 
 )
 
 def kep_keszites():
@@ -29,12 +29,18 @@ def kep_keszites():
     camera.configure(camera.create_still_configuration())
     camera.start()
 
-    image = camera.capture_array() 
+    image = camera.capture_array()
     image_path = "/home/danikaszman/Desktop/Images/image.jpg"
     cv2.imwrite(image_path, image)
-        
-    camera.stop()
-    return image_path
+    
+    # Kép konvertálása megjeleníthető formába
+    _, img_encoded = cv2.imencode('.png', image)
+    img_bytes = img_encoded.tobytes()
+
+    camera.stop() 
+    camera.close()
+    sleep(1)
+    return image_path, img_bytes
 
 def kepfeldolgozas(image_path):
     print("Kepfeldolgozas elindult!")
@@ -43,7 +49,7 @@ def kepfeldolgozas(image_path):
 
     denoised = cv2.fastNlMeansDenoising(
             gray_image, 
-            h = 260,      # Adjust based on noise level (higher = stronger denoising)
+            h = 260,   
             templateWindowSize=7, 
             searchWindowSize=21
         )
@@ -107,32 +113,34 @@ while True:
         break
     
     if event == 'Név fénykép':
-        image_path = kep_keszites()
+        image_path, img_bytes = kep_keszites()
+        window['-IMAGE-'].update(data=img_bytes)
+
         kepfeldolgozas(image_path)
         felismert_nev = szoveg_felismeres(image_path)
         
-        values['-INPUT1-'] += felismert_nev
-        window['-INPUT1-'].update(values['-INPUT1-'])
+        window['-INPUT1-'].update(felismert_nev)
     
     if event == 'Dátum fénykép':
-        image_path = kep_keszites()
+        image_path, img_bytes = kep_keszites()
+        window['-IMAGE-'].update(data=img_bytes)
+
         kepfeldolgozas(image_path)
         felismert_datum = datum_felismeres(image_path)
 
-        values['-INPUT2-'] += felismert_datum
-        window['-INPUT2-'].update(values['-INPUT2-'])
+        window['-INPUT2-'].update(felismert_datum)
 
     if event == 'Mentés':
-        if felismert_nev and felismert_datum:
+        if felismert_nev or felismert_datum:
             adatbazisba_mentes(felismert_nev, felismert_datum)
         else:
             window["-TEXT-"].update("Név vagy dátum hiányzik!", text_color="red")
 
-        values['-INPUT1-'] += ""
-        window['-INPUT1-'].update(values['-INPUT1-'])    
-        values['-INPUT2-'] += ""
-        window['-INPUT2-'].update(values['-INPUT2-'])
-
+        
+        window['-INPUT1-'].update("")    
+        window['-INPUT2-'].update("")
+        felismert_nev = ""
+        felismert_datum = ""
         window["-TEXT-"].update("Sikeresen mentve az adatbázisba!", text_color="green")
 
 window.close()
